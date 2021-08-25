@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[33]:
+# In[34]:
 
 
 #!/usr/bin/env python
@@ -39,10 +39,7 @@ def retrieve_record():
 
         # American Legue East = regularSeason-division-201
         # National League West = regularSeason-division-203 
-        elementwd = main.find_element_by_id("regularSeason-division-201")
         
-
-        firstTeamName = main.find_element_by_xpath("//*[@id='regularSeason-division-203']//div//div//div[1]//div//table/tbody//tr[1]//td[1]/span/span/a")
         firstTeamName = main.find_element_by_xpath("//*[@id='regularSeason-division-203']//div//div//div[1]//div//table/tbody//tr[1]//td[1]/span/span/a")
         firstWins     = main.find_element_by_xpath("//*[@id='regularSeason-division-203']//div//div//div[1]//div//table/tbody//tr[1]//td[2]/span")
         firstLosses   = main.find_element_by_xpath("//*[@id='regularSeason-division-203']//div//div//div[1]//div//table/tbody//tr[1]//td[3]/span")
@@ -190,11 +187,8 @@ trail_list_of_dict = []
 
 
 # w = winning and t = trailing
-w_team = "Giants"
-t_team = "Dodgers"
 
 todays_team_record_dict = retrieve_record()
-# print (todays_team_record_dict)              
 
 place = 1
 for key, value in todays_team_record_dict.items():
