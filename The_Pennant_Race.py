@@ -1,8 +1,21 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[9]:
 
+
+#!/usr/bin/env python
+# coding: utf-8
+# In[1]:
+# Selenium Getting data from MLB/standings
+from selenium import webdriver
+# give access to keyboard keys like enter or esc.
+from selenium.webdriver.common.keys import Keys
+# these 3 lines below is part of the "Wait" code:
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
 
 from datetime import datetime
 datetime_local = datetime.now()
@@ -10,6 +23,47 @@ date_display = datetime_local.strftime('%A - %B %d, %Y')
 print ("\t" + date_display)
 
 tup_win_perc = (.200,.250,.300,.350,.400,.450,.500,.550,.600,.650,.700,.750)
+
+def retrieve_record():
+    
+    current_records_dict = {}
+    
+    PATH="C:\Program Files (x86)\chromedriver.exe"
+    driver = webdriver.Chrome(PATH)
+    driver.get("https://www.mlb.com/standings")
+    
+    try: # This is used to wait for the web page to load before executing anything.
+        main = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.TAG_NAME, "main"))
+        )
+
+        elementwd = main.find_element_by_id("regularSeason-division-203")
+
+        firstTeamName = elementwd.find_element_by_xpath("//*[@id='regularSeason-division-203']//div//div//div[1]//div//table/tbody//tr[1]//td[1]/span/span/a")
+        firstWins     = elementwd.find_element_by_xpath("//*[@id='regularSeason-division-203']//div//div//div[1]//div//table/tbody//tr[1]//td[2]/span")
+        firstLosses   = elementwd.find_element_by_xpath("//*[@id='regularSeason-division-203']//div//div//div[1]//div//table/tbody//tr[1]//td[3]/span")
+
+        secondTeamName = elementwd.find_element_by_xpath("//*[@id='regularSeason-division-203']//div//div//div[1]//div//table/tbody//tr[2]//td[1]/span/span/a")
+        secondWins    = elementwd.find_element_by_xpath("//*[@id='regularSeason-division-203']//div//div//div[1]//div//table/tbody//tr[2]//td[2]/span")
+        secondLosses  = elementwd.find_element_by_xpath("//*[@id='regularSeason-division-203']//div//div//div[1]//div//table/tbody//tr[2]//td[3]/span")
+
+       
+        print (firstTeamName.get_attribute("data-team-name"))
+        print (firstWins.text)
+        print (firstLosses.text)
+        print (secondTeamName.get_attribute("data-team-name"))
+        print (secondWins.text)
+        print (secondLosses.text)
+        
+        return current_records_dict
+              
+    finally:
+        driver.quit()
+    
+    
+
+
+
 
 def games_remaining(wins, losses):
     
@@ -71,7 +125,7 @@ def trailing_team(win_list_of_dict, team_name, wins, losses):
     return  trailing_list_of_dict
 
 
-# *********** calc_winning_percentage ****************
+# *********** calc_winning_percentage ***************
 def calc_winning_percentage(wins,losses):
     total = float(wins) + float(losses)
     win_percentage = float(wins)/float(total)
@@ -130,20 +184,21 @@ def print_team_results(win_list, trail_list):
                     wp = format_win_perc(win_perc)
                     #print (winlossrec,"{:.3f}".format(win_perc), "\t", end='')
                     #print (winlossrec, wp, "\t", end='')
-                    print ("  ", winlossrec[0],"-",winlossrec[1], wp, "\t\t", end='')
-    
-                    
-    
-    return True                    
+                    print ("  ", winlossrec[0],"-",winlossrec[1], wp, "\t\t", end='')                       
 
 
 list_of_dict = []
 trail_list_of_dict = []
+
+
 # w = winning and t = trailing
 w_team = "Giants"
+t_team = "Dodgers"
+
+retrieve_record()
+
 w_team_wins = 80
 w_team_losses = 44
-t_team = "Dodgers"
 t_team_wins = 78
 t_team_losses = 47
 
@@ -170,4 +225,10 @@ print ()
 print ()
 print ("The winning team percentages are calculated and rounded from the following: ")
 print (tup_win_perc)
+
+
+# In[ ]:
+
+
+
 
