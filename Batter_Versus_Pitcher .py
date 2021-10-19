@@ -142,7 +142,7 @@ class BP_Stat_Class:
                     print (option.get_attribute('innerHTML'))
                     option.click()
             
-            time.sleep(5)
+            time.sleep(10)
             
             at_bats = season_stats.find_elements_by_xpath("//span[text()=" + current_year + "]//parent::td//parent::tr//td[5]//span")
             for ab in at_bats:
@@ -398,10 +398,8 @@ class BP_Stat_Class:
         # The third item is the unique identifier assigned to each player.
         pitcher_url_list = pitcher_url.split("-")
         
-        #try: # select the batter pictcher drop down list and select the player. 
-            # This xpath is from the "All Opponents Faced" dropdown after the ".get" of the "Batter vs. Pitcher"
-        #    batter_versus_pitcher = WebDriverWait(driver,  20).until(                                                                
-        #        EC.presence_of_element_located((By.XPATH, "//select[@class='p-dropdown__actual-select-element dropdown-menu' and @aria-labelledby='type-bvp-opponent']")))  
+        # select the batter pictcher drop down list and select the player. 
+        # This xpath is from the "All Opponents Faced" dropdown after the ".get" of the "Batter vs. Pitcher"
         try:
             driver = WebDriverWait(driver,  20).until(                                                                
                  EC.presence_of_element_located((By.XPATH, "//select[@class='p-dropdown__actual-select-element dropdown-menu' and @aria-labelledby='type-bvp-team']" ))) 
@@ -498,16 +496,123 @@ class BP_Stat_Class:
         
         return versus_pitcher_stats_dict, versus_pitcher_total_stats_dict
 
+    def getPostSeasonStats(self, u):
+        player_url = u
+        
+        from datetime import datetime
+        import time
+        start = datetime.now()
+        
+        from selenium.common.exceptions import NoSuchElementException
+    
+        post_season_year_dict = {}
+        post_season_career_dict = {}
+        
+        from datetime import datetime
+        datetime_local = datetime.now()
+        current_year = datetime_local.strftime('%Y')
+                         
+        PATH="C:\Program Files (x86)\chromedriver.exe"
+        driver = webdriver.Chrome(PATH)
+        # for postseason https://www.mlb.com/player/corey-seager-608369?stats=career-p-hitting-mlb&year=2021
+        driver.get(player_url + "?stats=career-p-hitting-mlb&year=" + current_year)  
+        
+        try: 
+            
+            driver = WebDriverWait(driver,  20).until(                                                                
+                 EC.presence_of_element_located((By.XPATH, "//select[@class='p-dropdown__actual-select-element dropdown-menu' and @aria-labelledby='type-career-gametype']"))) 
+              
+            postseason_stats = driver.find_element_by_xpath("//select[@class='p-dropdown__actual-select-element dropdown-menu' and @aria-labelledby='type-career-gametype']")
+            type_season_options = postseason_stats.find_elements_by_tag_name("option")
+            for option in type_season_options:
+                if option.get_attribute("innerHTML") == "Postseason Cumulative":
+                    print (option.get_attribute('innerHTML'))
+                    option.click()
+            
+            time.sleep(5)
+            
+            # get postseason current year stats.  
+            at_bats = postseason_stats.find_element_by_xpath("//span[text()=" + current_year + "]//parent::td/parent::tr/td[5]/span")
+            post_season_year_dict['AB'] = at_bats.text
+
+            runs = postseason_stats.find_element_by_xpath("//span[text()=" + current_year + "]//parent::td/parent::tr/td[6]/span") 
+            post_season_year_dict['R'] = runs.text
+            
+            hits = postseason_stats.find_element_by_xpath("//span[text()=" + current_year + "]//parent::td/parent::tr/td[7]/span") 
+            post_season_year_dict['H'] = hits.text
+
+            homeruns = postseason_stats.find_element_by_xpath("//span[text()=" + current_year + "]//parent::td/parent::tr/td[11]/span") 
+            post_season_year_dict['HR'] = homeruns.text
+
+            runs_batted_in = postseason_stats.find_element_by_xpath("//span[text()=" + current_year + "]//parent::td/parent::tr/td[12]/span") 
+            post_season_year_dict['RBI'] = runs_batted_in.text
+
+            walks = postseason_stats.find_element_by_xpath("//span[text()=" + current_year + "]//parent::td/parent::tr/td[13]/span") 
+            post_season_year_dict['BB'] = walks.text
+
+            strike_outs = postseason_stats.find_element_by_xpath("//span[text()=" + current_year + "]//parent::td/parent::tr/td[15]/span")  
+            post_season_year_dict['SO'] = strike_outs.text
+
+            stolen_bases = postseason_stats.find_element_by_xpath("//span[text()=" + current_year + "]//parent::td/parent::tr/td[16]/span")  
+            post_season_year_dict['SB'] = stolen_bases.text
+
+            batting_average = postseason_stats.find_element_by_xpath("//span[text()=" + current_year + "]//parent::td/parent::tr/td[18]/span")  
+            post_season_year_dict['BA'] = batting_average.text
+                        
+        except NoSuchElementException as ex:
+            print("No Post Season Stats for current year - Exception has been thrown. " + str(ex))
+    
+        try:
+            ps_career_total = WebDriverWait(driver,  20).until(                                                                
+                 EC.presence_of_element_located((By.XPATH, "//span[text()='MLB Career']//parent::td/parent::tr/td[5]/span" ))) 
+
+            total_at_bats = postseason_stats.find_element_by_xpath("//span[text()='MLB Career']//parent::td/parent::tr/td[5]/span")  
+            post_season_career_dict['AB'] = total_at_bats.text
+
+            total_runs = postseason_stats.find_element_by_xpath("//span[text()='MLB Career']//parent::td/parent::tr/td[6]/span") 
+            post_season_career_dict['R'] = total_runs.text
+
+            total_hits = postseason_stats.find_element_by_xpath("//span[text()='MLB Career']//parent::td/parent::tr/td[7]/span") 
+            post_season_career_dict['H'] = total_hits.text
+
+            total_homeruns = postseason_stats.find_element_by_xpath("//span[text()='MLB Career']//parent::td/parent::tr/td[11]/span") 
+            post_season_career_dict['HR'] = total_homeruns.text
+
+            total_runs_batted_in = postseason_stats.find_element_by_xpath("//span[text()='MLB Career']//parent::td/parent::tr/td[12]/span") 
+            post_season_career_dict['RBI'] = total_runs_batted_in.text
+
+            total_walks = postseason_stats.find_element_by_xpath("//span[text()='MLB Career']//parent::td/parent::tr/td[13]/span") 
+            post_season_career_dict['BB'] = total_walks.text
+
+            total_strike_outs = postseason_stats.find_element_by_xpath("//span[text()='MLB Career']//parent::td/parent::tr/td[15]/span")  
+            post_season_career_dict['SO'] = total_strike_outs.text
+
+            total_stolen_bases = postseason_stats.find_element_by_xpath("//span[text()='MLB Career']//parent::td/parent::tr/td[16]/span")  
+            post_season_career_dict['SB'] = total_stolen_bases.text
+
+            total_batting_average = postseason_stats.find_element_by_xpath("//span[text()='MLB Career']//parent::td/parent::tr/td[18]/span")  
+            post_season_career_dict['BA'] = total_batting_average.text
+
+        except NoSuchElementException as ex:
+            print("No Post Season Stats for career - Exception has been thrown. " + str(ex))
+        
+        end = datetime.now()
+        duration = end - start
+        print ("Total Time for Postseason Stats:")
+        print (duration)
+        
+        return post_season_year_dict, post_season_career_dict
+
     
 from tkinter import *
 from PIL import ImageTk,Image
 # https://pythonguides.com/python-tkinter-optionmenu/
 root = Tk()
-root.title("Batter versus Pitcher")
-root.geometry("1200x1200")
+root.title("Player Stats")
+root.geometry("800x800")
 
 FrameIt=Frame(root)
-FrameIt.grid(padx = 200, pady = 200)
+FrameIt.grid(padx = 50, pady = 50)
 
 BP = BP_Stat_Class()
 Def_Team_List = BP.getTeamList()
@@ -652,7 +757,7 @@ def process(*args):
 
     url = BP.getPlayerURL(g_selected_Batter, g_off_roster_list_of_dict )
     season_stats_dict = BP.getSeasonStats(url)
-    
+
     print (season_stats_dict)
     label_line = Label(FrameIt, text= "Player: " + g_selected_Batter, font='bold')
     label_line.grid(row=3, column=10, sticky='e')
@@ -704,7 +809,7 @@ def process(*args):
         label_line.grid(row=16, column=v_col, sticky='e')
         v_col += 1
     
-     # ************* Season against pitcher and for totals against pitcher for career  *********************
+     # ************* Season against pitcher and totals for career  *********************
     pitcher_url = BP.getPitcherURL(g_selected_Pitcher, g_def_roster_list_of_dict) 
     pitcher_stats_dict, pitcher_total_stats_dict = BP.getPitcherVersusBatterStats(batter_url, pitcher_url, g_selected_Def_Team)
     
@@ -735,6 +840,38 @@ def process(*args):
     print (pitcher_stats_dict)
     print (pitcher_total_stats_dict)
     
+    # ************* Post Season Stats for Year and Career  *********************
+    batter_url = BP.getPlayerURL(g_selected_Batter, g_off_roster_list_of_dict)
+    ps_year_stats_dict, ps_career_stats_dict = BP.getPostSeasonStats(batter_url)
+    
+    # Print current year postseason stats
+    label_line = Label(FrameIt, text= "Postseason Stats(current year): ")
+    label_line.grid(row=28, column=10, sticky='e')
+    v_col = 10
+    # print out stats to tkinter display
+    for key in ps_year_stats_dict:
+        label_line = Label(FrameIt, text= key + "\t")
+        label_line.grid(row=29, column=v_col, sticky='e')
+        label_line = Label(FrameIt, text= ps_year_stats_dict[key] + "\t")
+        label_line.grid(row=30, column=v_col, sticky='e')
+        v_col += 1
+                       
+    # Print career postseason stats
+    label_line = Label(FrameIt, text= "Postseason Stats(career): ")
+    label_line.grid(row=32, column=10, sticky='e')
+    v_col = 10
+    # print out stats to tkinter display
+    for key in ps_career_stats_dict:
+        label_line = Label(FrameIt, text= key + "\t")
+        label_line.grid(row=33, column=v_col, sticky='e')
+        label_line = Label(FrameIt, text= ps_career_stats_dict[key] + "\t")
+        label_line.grid(row=34, column=v_col, sticky='e')
+        v_col += 1
+  
+    # Post Season Stats
+    print (ps_year_stats_dict)
+    print (ps_career_stats_dict)
+
     
     
 button_process = Button(root, text="Process",command=process, padx = 50, fg="blue")  #padx = 50, pady = 50 command=process() to process immediately
@@ -756,8 +893,3 @@ tk_Batter.trace('w', change_Batter_dropdown)
 
    
 root.mainloop()
-
-
-
-
-
